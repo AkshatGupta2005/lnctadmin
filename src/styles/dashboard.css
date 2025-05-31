@@ -1,0 +1,135 @@
+.dashboard {
+  display: flex;
+  min-height: 100vh;
+  background: #f8fafc;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-left: 280px;
+  transition: margin-left 0.3s ease;
+}
+
+.main-content.sidebar-collapsed {
+  margin-left: 80px;
+}
+
+.content-area {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+/* Module Header Styles */
+.module-header {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.module-header h1 {
+  color: #1f2937;
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.module-header p {
+  color: #6b7280;
+  font-size: 16px;
+  margin: 0;
+}
+
+.module-header .stats-summary {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.stat-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  min-width: 120px;
+}
+
+.stat-number {
+  display: block;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 1024px) {
+  .main-content {
+    margin-left: 0;
+  }
+
+  .main-content.sidebar-collapsed {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .content-area {
+    padding: 15px;
+  }
+
+  .module-header {
+    padding: 20px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .module-header h1 {
+    font-size: 24px;
+  }
+
+  .module-header .stats-summary {
+    justify-content: center;
+  }
+
+  .stat-card {
+    flex: 1;
+    min-width: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .content-area {
+    padding: 10px;
+  }
+
+  .module-header {
+    padding: 15px;
+  }
+
+  .module-header h1 {
+    font-size: 22px;
+  }
+
+  .module-header .stats-summary {
+    flex-direction: column;
+  }
+
+  .stat-card {
+    min-width: auto;
+  }
+}
