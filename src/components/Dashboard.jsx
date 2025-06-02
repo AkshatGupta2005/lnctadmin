@@ -7,7 +7,6 @@ import EventsModule from "./modules/EventsModule"
 import WebsiteEditor from "./modules/WebsiteEditor"
 import UserManagement from "./modules/UserManagement"
 import ServicesModule from "./modules/ServicesModule"
-import TimelineModule from "./modules/TimelineModule"
 import QueryModule from "./modules/QueryModule"
 import "../styles/dashboard.css"
 
@@ -26,8 +25,6 @@ const Dashboard = ({ user, onLogout }) => {
         return <UserManagement user={user} />
       case "services":
         return <ServicesModule user={user} />
-      case "timeline":
-        return <TimelineModule user={user} />
       case "feedback":
         return <QueryModule user={user} />
       default:

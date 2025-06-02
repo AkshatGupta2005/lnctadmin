@@ -9,7 +9,6 @@ const Sidebar = ({ user, activeModule, setActiveModule, collapsed, setCollapsed,
       { id: "website-editor", name: "Website Editor", icon: "🌐", description: "Edit website content" },
       { id: "user-management", name: "User Management", icon: "👥", description: "Manage users and roles" },
       { id: "services", name: "Services", icon: "🏢", description: "Manage service categories" },
-      { id: "timeline", name: "Timeline", icon: "⏰", description: "Manage company timeline" },
       { id: "feedback", name: "Queries", icon: "📬", description: "Manage user queries" },
     ]
 
@@ -17,9 +16,9 @@ const Sidebar = ({ user, activeModule, setActiveModule, collapsed, setCollapsed,
       case "admin":
         return allModules
       case "head":
-        return allModules.filter((m) => ["events", "timeline", "services", "feedback"].includes(m.id))
+        return allModules.filter((m) => ["events", "services", "feedback"].includes(m.id))
       case "manager":
-        return allModules.filter((m) => ["events", "services", "timeline", "feedback"].includes(m.id))
+        return allModules.filter((m) => ["events", "services", "feedback"].includes(m.id))
       case "editor":
         return allModules.filter((m) => ["website-editor", "events", "feedback"].includes(m.id))
       case "coordinator":
@@ -67,7 +66,7 @@ const Sidebar = ({ user, activeModule, setActiveModule, collapsed, setCollapsed,
             <div className="logo-icon">AG</div>
             {!collapsed && (
               <div className="logo-text">
-                <span className="logo-title">AkshatGupta</span>
+                <span className="logo-title">LNCT WORLD</span>
                 <span className="logo-subtitle">Admin Panel</span>
               </div>
             )}
@@ -118,7 +117,7 @@ const Sidebar = ({ user, activeModule, setActiveModule, collapsed, setCollapsed,
         {!collapsed && (
           <div className="sidebar-footer">
             <div className="footer-info">
-              <p>© 2024 AkshatGupta.space</p>
+              <p>© 2025 LNCT GROUP</p>
               <p>Admin Panel v1.0</p>
             </div>
           </div>
