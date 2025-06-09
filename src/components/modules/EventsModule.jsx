@@ -1,84 +1,65 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import "../../styles/modules/events.css"
 
-const EventsModule = ({ user }) => {
-  const [events, setEvents] = useState([
-    {
-      id: 1,
-      title: "Tech Conference 2024",
-      date: "2024-01-15",
-      location: "LNCT Bhopal",
-      attendees: 250,
-      status: "completed",
-      description: "Annual technology conference with industry experts",
-      images: [],
-    },
-    {
-      id: 2,
-      title: "Workshop on AI",
-      date: "2024-01-20",
-      location: "JNCT Campus",
-      attendees: 150,
-      status: "completed",
-      description: "Hands-on workshop on artificial intelligence",
-      images: [],
-    },
-  ])
-
+const EventsModule = () => {
+  const [events, setEvents] = useState([])
   const [showAddForm, setShowAddForm] = useState(false)
-  const [selectedEvent, setSelectedEvent] = useState(null)
   const [newEvent, setNewEvent] = useState({
     title: "",
-    date: "",
-    location: "",
-    attendees: "",
     description: "",
-    images: [],
   })
+  const [files, setFiles] = useState([])
 
-  const [editingEvent, setEditingEvent] = useState(null)
+  // Load events from backend
+  useEffect(() => {
+    fetch("http://localhost:5000/api/events")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) setEvents(data.data)
+      })
+      .catch((err) => console.error("Failed to fetch events:", err))
+  }, [])
 
-  const handleAddEvent = (e) => {
+  // Submit event to backend
+  const handleAddEvent = async (e) => {
     e.preventDefault()
-    const event = {
-      id: Date.now(),
-      ...newEvent,
-      status: "completed",
-      attendees: Number.parseInt(newEvent.attendees),
+    const formData = new FormData()
+    formData.append("title", newEvent.title)
+    formData.append("description", newEvent.description)
+    if (files.length > 0) formData.append("image", files[0]) // single image
+
+    try {
+      const response = await fetch("http://localhost:5000/api/events", {
+        method: "POST",
+        body: formData,
+      })
+      const data = await response.json()
+      if (data.success) {
+        setEvents([...events, data.data])
+        setShowAddForm(false)
+        setNewEvent({ title: "", description: "" })
+        setFiles([])
+      } else {
+        alert("Upload failed")
+      }
+    } catch (error) {
+      console.error("Error submitting event:", error)
+      alert("Error submitting event")
     }
-    setEvents([...events, event])
-    setNewEvent({
-      title: "",
-      date: "",
-      location: "",
-      attendees: "",
-      description: "",
-      images: [],
-    })
-    setShowAddForm(false)
-  }
-
-  const handleEditEvent = (e) => {
-    e.preventDefault()
-    const updatedEvents = events.map((event) => (event.id === editingEvent.id ? { ...editingEvent } : event))
-    setEvents(updatedEvents)
-    setEditingEvent(null)
   }
 
   const handleImageUpload = (e) => {
-    const files = Array.from(e.target.files)
-    const imageUrls = files.map((file) => URL.createObjectURL(file))
-    setNewEvent({
-      ...newEvent,
-      images: [...newEvent.images, ...imageUrls],
-    })
+    const selectedFiles = Array.from(e.target.files)
+    const imageUrls = selectedFiles.map((file) => URL.createObjectURL(file))
+    setFiles(selectedFiles)
+    setNewEvent({ ...newEvent, images: imageUrls }) // store preview URLs
   }
 
-  const removeImage = (index) => {
-    const updatedImages = newEvent.images.filter((_, i) => i !== index)
-    setNewEvent({ ...newEvent, images: updatedImages })
+  const removeImage = () => {
+    setFiles([])
+    setNewEvent({ ...newEvent, images: [] })
   }
 
   return (
@@ -91,6 +72,7 @@ const EventsModule = ({ user }) => {
         </button>
       </div>
 
+      {/* Add Event Form */}
       {showAddForm && (
         <div className="modal-overlay">
           <div className="modal">
@@ -100,49 +82,20 @@ const EventsModule = ({ user }) => {
                 ×
               </button>
             </div>
-            <form onSubmit={handleAddEvent} className="event-form">
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Event Title</label>
-                  <input
-                    type="text"
-                    value={newEvent.title}
-                    onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Date</label>
-                  <input
-                    type="date"
-                    value={newEvent.date}
-                    onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })}
-                    required
-                  />
-                </div>
+            <form
+              onSubmit={handleAddEvent}
+              className="event-form"
+              encType="multipart/form-data"
+            >
+              <div className="form-group">
+                <label>Event Title</label>
+                <input
+                  type="text"
+                  value={newEvent.title}
+                  onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
+                  required
+                />
               </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Location</label>
-                  <input
-                    type="text"
-                    value={newEvent.location}
-                    onChange={(e) => setNewEvent({ ...newEvent, location: e.target.value })}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Attendees</label>
-                  <input
-                    type="number"
-                    value={newEvent.attendees}
-                    onChange={(e) => setNewEvent({ ...newEvent, attendees: e.target.value })}
-                    required
-                  />
-                </div>
-              </div>
-
               <div className="form-group">
                 <label>Description</label>
                 <textarea
@@ -152,22 +105,15 @@ const EventsModule = ({ user }) => {
                   required
                 ></textarea>
               </div>
-
               <div className="form-group">
-                <label>Event Images</label>
-                <div className="image-upload-area">
-                  <input type="file" multiple accept="image/*" onChange={handleImageUpload} id="image-upload" />
-                  <label htmlFor="image-upload" className="upload-label">
-                    📷 Click to upload images or drag and drop
-                  </label>
-                </div>
-
-                {newEvent.images.length > 0 && (
+                <label>Event Image</label>
+                <input type="file" accept="image/*" onChange={handleImageUpload} />
+                {newEvent.images && newEvent.images.length > 0 && (
                   <div className="image-preview-grid">
-                    {newEvent.images.map((image, index) => (
+                    {newEvent.images.map((img, index) => (
                       <div key={index} className="image-preview">
-                        <img src={image || "/placeholder.svg"} alt={`Preview ${index + 1}`} />
-                        <button type="button" className="remove-image" onClick={() => removeImage(index)}>
+                        <img src={img} alt={`Preview ${index}`} />
+                        <button type="button" onClick={removeImage}>
                           ×
                         </button>
                       </div>
@@ -175,165 +121,31 @@ const EventsModule = ({ user }) => {
                   </div>
                 )}
               </div>
-
               <div className="form-actions">
                 <button type="button" onClick={() => setShowAddForm(false)}>
                   Cancel
                 </button>
-                <button type="submit">Add Event</button>
+                <button type="submit">Submit</button>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      {editingEvent && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <div className="modal-header">
-              <h2>Edit Event</h2>
-              <button className="close-btn" onClick={() => setEditingEvent(null)}>
-                ×
-              </button>
-            </div>
-            <form onSubmit={handleEditEvent} className="event-form">
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Event Title</label>
-                  <input
-                    type="text"
-                    value={editingEvent.title}
-                    onChange={(e) => setEditingEvent({ ...editingEvent, title: e.target.value })}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Date</label>
-                  <input
-                    type="date"
-                    value={editingEvent.date}
-                    onChange={(e) => setEditingEvent({ ...editingEvent, date: e.target.value })}
-                    required
-                  />
-                </div>
-              </div>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Location</label>
-                  <input
-                    type="text"
-                    value={editingEvent.location}
-                    onChange={(e) => setEditingEvent({ ...editingEvent, location: e.target.value })}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Attendees</label>
-                  <input
-                    type="number"
-                    value={editingEvent.attendees}
-                    onChange={(e) => setEditingEvent({ ...editingEvent, attendees: e.target.value })}
-                    required
-                  />
-                </div>
-              </div>
-              <div className="form-group">
-                <label>Description</label>
-                <textarea
-                  value={editingEvent.description}
-                  onChange={(e) => setEditingEvent({ ...editingEvent, description: e.target.value })}
-                  rows="4"
-                  required
-                ></textarea>
-              </div>
-              <div className="form-actions">
-                <button type="button" onClick={() => setEditingEvent(null)}>
-                  Cancel
-                </button>
-                <button type="submit">Update Event</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
+      {/* Event Cards */}
       <div className="events-grid">
         {events.map((event) => (
           <div key={event.id} className="event-card">
-            <div className="event-header">
-              <h3>{event.title}</h3>
-              <span className="event-status completed">Completed</span>
-            </div>
-            <div className="event-details">
-              <div className="detail-item">
-                <span className="detail-icon">📅</span>
-                <span>{new Date(event.date).toLocaleDateString()}</span>
-              </div>
-              <div className="detail-item">
-                <span className="detail-icon">📍</span>
-                <span>{event.location}</span>
-              </div>
-              <div className="detail-item">
-                <span className="detail-icon">👥</span>
-                <span>{event.attendees} attendees</span>
-              </div>
-            </div>
-            <p className="event-description">{event.description}</p>
-            {event.images.length > 0 && (
-              <div className="event-images">
-                <span className="images-count">📷 {event.images.length} images</span>
-              </div>
-            )}
-            <div className="event-actions">
-              <button onClick={() => setSelectedEvent(event)}>View Details</button>
-              <button onClick={() => setEditingEvent(event)}>Edit</button>
-            </div>
+            <h3>{event.title}</h3>
+            <p>{event.description}</p>
+            <img
+              src={`http://localhost:5000/api/event/image/${event.id}`}
+              alt={event.title}
+              style={{ maxWidth: "100%", maxHeight: "200px", objectFit: "cover" }}
+            />
           </div>
         ))}
       </div>
-
-      {selectedEvent && (
-        <div className="modal-overlay">
-          <div className="modal large">
-            <div className="modal-header">
-              <h2>{selectedEvent.title}</h2>
-              <button className="close-btn" onClick={() => setSelectedEvent(null)}>
-                ×
-              </button>
-            </div>
-            <div className="event-details-modal">
-              <div className="detail-grid">
-                <div className="detail-item">
-                  <strong>Date:</strong> {new Date(selectedEvent.date).toLocaleDateString()}
-                </div>
-                <div className="detail-item">
-                  <strong>Location:</strong> {selectedEvent.location}
-                </div>
-                <div className="detail-item">
-                  <strong>Attendees:</strong> {selectedEvent.attendees}
-                </div>
-                <div className="detail-item">
-                  <strong>Status:</strong> {selectedEvent.status}
-                </div>
-              </div>
-              <div className="description-section">
-                <strong>Description:</strong>
-                <p>{selectedEvent.description}</p>
-              </div>
-              {selectedEvent.images.length > 0 && (
-                <div className="images-section">
-                  <strong>Event Images:</strong>
-                  <div className="image-gallery">
-                    {selectedEvent.images.map((image, index) => (
-                      <img key={index} src={image || "/placeholder.svg"} alt={`Event ${index + 1}`} />
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
