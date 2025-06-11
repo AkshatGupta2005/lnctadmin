@@ -82,12 +82,12 @@ const TopBar = ({ user, onLogout, toggleSidebar }) => {
         </div>
       </div>
 
-      <div className="topbar-right">
+      {/* <div className="topbar-right">
         <div className="notifications">
           <button className="notification-btn">
             🔔<span className="notification-badge">3</span>
           </button>
-        </div>
+        </div> */}
 
         <div className="user-menu-container">
           <button className="user-menu-trigger" onClick={() => setShowUserMenu(!showUserMenu)}>
@@ -104,19 +104,19 @@ const TopBar = ({ user, onLogout, toggleSidebar }) => {
                   <div className="user-role">{user.role}</div>
                 </div>
               </div>
-              <div className="dropdown-divider"></div>
+              {/* <div className="dropdown-divider"></div>
               <button className="dropdown-item">👤 Profile Settings</button>
               <button className="dropdown-item">⚙️ Preferences</button>
-              <button className="dropdown-item">📊 Activity Log</button>
-              <div className="dropdown-divider"></div>
+              <button className="dropdown-item">📊 Activity Log</button> */}
+              {/* <div className="dropdown-divider"></div> */}
               <button className="dropdown-item logout-item" onClick={handleLogout}>
-                🚪 Logout
+                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -980 800 960" width="20px" fill="#434343"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z"/></svg> Logout
               </button>
             </div>
           )}
         </div>
       </div>
-    </div>
+    // </div>
   )
 }
 
