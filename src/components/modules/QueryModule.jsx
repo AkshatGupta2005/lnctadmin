@@ -159,7 +159,7 @@ const QueryModule = ({ user }) => {
       <div className="query-stats">
         <div className="stat-card total">
           <div className="stat-icon-wrapper">
-            <div className="stat-icon">📊</div>
+            <div className="stat-icon"><svg xmlns="http://www.w3.org/2000/svg" height="36px" viewBox="0 -960 960 960" width="40px" fill="#F3F3F3"><path d="M282.67-278h66.66v-276.67h-66.66V-278Zm164 0h66.66v-404h-66.66v404Zm164 0h66.66v-152h-66.66v152Zm-424 158q-27 0-46.84-19.83Q120-159.67 120-186.67v-586.66q0-27 19.83-46.84Q159.67-840 186.67-840h586.66q27 0 46.84 19.83Q840-800.33 840-773.33v586.66q0 27-19.83 46.84Q800.33-120 773.33-120H186.67Zm0-66.67h586.66v-586.66H186.67v586.66Zm0-586.66v586.66-586.66Z"/></svg></div>
           </div>
           <div className="stat-info">
             <span className="stat-number">{stats.total}</span>
@@ -169,7 +169,7 @@ const QueryModule = ({ user }) => {
         </div>
         <div className="stat-card pending">
           <div className="stat-icon-wrapper">
-            <div className="stat-icon">⏳</div>
+            <div className="stat-icon"><svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="34px" fill="#F3F3F3"><path d="M480-521.33q70 0 119-49t49-119v-124H312v124q0 70 49 119t119 49ZM160-80v-66.67h85.33v-124.66q0-67.67 36.17-124.17t97.17-84.5q-61-28.67-97.17-85.17t-36.17-124.16v-124H160V-880h640v66.67h-85.33v124q0 67.66-36.17 124.16T581.33-480q61 28 97.17 84.5t36.17 124.17v124.66H800V-80H160Z"/></svg></div>
           </div>
           <div className="stat-info">
             <span className="stat-number">{stats.pending}</span>
@@ -179,7 +179,7 @@ const QueryModule = ({ user }) => {
         </div>
         <div className="stat-card resolved">
           <div className="stat-icon-wrapper">
-            <div className="stat-icon">✅</div>
+            <div className="stat-icon"><svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#e3e3e3"><path d="m435.33-250 228-228L618-523.33l-183 183L338.33-437l-45 45 142 142ZM226.67-80q-27 0-46.84-19.83Q160-119.67 160-146.67v-666.66q0-27 19.83-46.84Q199.67-880 226.67-880H574l226 226v507.33q0 27-19.83 46.84Q760.33-80 733.33-80H226.67Zm314-542.67v-190.66h-314v666.66h506.66v-476H540.67Zm-314-190.66v190.66-190.66 666.66-666.66Z"/></svg></div>
           </div>
           <div className="stat-info">
             <span className="stat-number">{stats.resolved}</span>
@@ -198,7 +198,7 @@ const QueryModule = ({ user }) => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <span className="search-icon">🔍</span>
+            <span className="search-icon"><svg xmlns="http://www.w3.org/2000/svg" height="34px" viewBox="0-1080 960 960" width="24px" fill="#434343"><path d="M792-120.67 532.67-380q-30 25.33-69.64 39.67Q423.39-326 378.67-326q-108.44 0-183.56-75.17Q120-476.33 120-583.33t75.17-182.17q75.16-75.17 182.5-75.17 107.33 0 182.16 75.17 74.84 75.17 74.84 182.27 0 43.23-14 82.9-14 39.66-40.67 73l260 258.66-48 48Zm-414-272q79.17 0 134.58-55.83Q568-504.33 568-583.33q0-79-55.42-134.84Q457.17-774 378-774q-79.72 0-135.53 55.83-55.8 55.84-55.8 134.84t55.8 134.83q55.81 55.83 135.53 55.83Z"/></svg></span>
           </div>
         </div>
 
@@ -260,7 +260,7 @@ const QueryModule = ({ user }) => {
           ))
         ) : (
           <div className="empty-state">
-            <div className="empty-icon">📭</div>
+            <div className="empty-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M320-320h480v-120H698q-21 37-58 58.5T560-360q-42 0-79-21.5T422-440H320v120Zm240-120q34 0 57-23.5t23-56.5h160v-280H320v280h160q0 33 23.5 56.5T560-440ZM320-240q-33 0-56.5-23.5T240-320v-480q0-33 23.5-56.5T320-880h480q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H320ZM160-80q-33 0-56.5-23.5T80-160v-560h80v560h560v80H160Zm160-240h480-480Z"/></svg></div>
             <h3>No queries found</h3>
             <p>Try changing your filters or search query</p>
           </div>
@@ -283,8 +283,8 @@ const QueryModule = ({ user }) => {
                   <div className="user-info">
                     <h3>{selectedItem.name}</h3>
                     <div className="user-contact-details">
-                      <span className="contact-item">📧 {selectedItem.email}</span>
-                      <span className="contact-item">📱 {selectedItem.phone}</span>
+                      <span className="contact-item"><svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 650" width="20px" fill="#000000"><path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm320-280L160-640v400h640v-400L480-440Zm0-80 320-200H160l320 200ZM160-640v-80 480-400Z"/></svg> {selectedItem.email}</span>
+                      <span className="contact-item"><svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 660" width="20px" fill="#000000"><path d="M763-145q-121-9-229.5-59.5T339-341q-86-86-135.5-194T144-764q-2-21 12.29-36.5Q170.57-816 192-816h136q17 0 29.5 10.5T374-779l24 106q2 13-1.5 25T385-628l-97 98q20 38 46 73t57.97 65.98Q422-361 456-335.5q34 25.5 72 45.5l99-96q8-8 20-11.5t25-1.5l107 23q17 5 27 17.5t10 29.5v136q0 21.43-16 35.71Q784-143 763-145ZM255-600l70-70-17.16-74H218q5 38 14 73.5t23 70.5Zm344 344q35.1 14.24 71.55 22.62Q707-225 744-220v-90l-75-16-70 70ZM255-600Zm344 344Z"/></svg> {selectedItem.phone}</span>
                     </div>
                   </div>
                 </div>
