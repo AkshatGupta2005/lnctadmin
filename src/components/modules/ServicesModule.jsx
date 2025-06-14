@@ -1,368 +1,296 @@
 "use client"
 
-import { useState } from "react"
-import "../../styles/modules/services.css"
+import React, { useState, useEffect, useCallback } from 'react';
+// Create and import a corresponding CSS file for this component
+// For example: import "./ServicesModule.css"; 
+// Make sure to create this file in the same directory.
 
-const ServicesModule = ({ user }) => {
-  const [services, setServices] = useState({
-    "colleges-universities": {
-      name: "Colleges & Universities",
-      icon: <svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#EFEFEF"><path d="M479.33-120 192.67-276.67v-240L40-600l439.33-240L920-600v318h-66.67v-280L766-516.67v240L479.33-120Zm0-316 301.34-164-301.34-162-300 162 300 164Zm0 240.33 220-120.66v-162.34L479.33-360l-220-120v163.67l220 120.66ZM480-436Zm-.67 79.33Zm0 0Z"/></svg>,
-      description: "Educational institutions and higher learning centers",
-      institutions: [
-        {
-          id: 1,
-          name: "LNCT Bhopal",
-          type: "Engineering College",
-          location: "Bhopal, MP",
-          clients: 15,
-          projects: 8,
-          status: "active",
-          departments: [
-            { id: 1, name: "Computer Science", students: 500, faculty: 25, projects: 3 },
-            { id: 2, name: "Mechanical Engineering", students: 400, faculty: 20, projects: 2 },
-            { id: 3, name: "Civil Engineering", students: 350, faculty: 18, projects: 2 },
-            { id: 4, name: "Electronics & Communication", students: 450, faculty: 22, projects: 1 },
-          ],
-        },
-        {
-          id: 2,
-          name: "JNCT Jabalpur",
-          type: "Engineering College",
-          location: "Jabalpur, MP",
-          clients: 12,
-          projects: 6,
-          status: "active",
-          departments: [
-            { id: 1, name: "Information Technology", students: 300, faculty: 15, projects: 2 },
-            { id: 2, name: "Electrical Engineering", students: 250, faculty: 12, projects: 2 },
-            { id: 3, name: "Chemical Engineering", students: 200, faculty: 10, projects: 1 },
-            { id: 4, name: "Biotechnology", students: 150, faculty: 8, projects: 1 },
-          ],
-        },
-        {
-          id: 3,
-          name: "LNCTU University",
-          type: "University",
-          location: "Bhopal, MP",
-          clients: 8,
-          projects: 4,
-          status: "active",
-          departments: [
-            { id: 1, name: "School of Engineering", students: 800, faculty: 40, projects: 2 },
-            { id: 2, name: "School of Management", students: 300, faculty: 15, projects: 1 },
-            { id: 3, name: "School of Pharmacy", students: 200, faculty: 12, projects: 1 },
-          ],
-        },
-      ],
-    },
-    schools: {
-      name: "Schools",
-      icon: <svg xmlns="http://www.w3.org/2000/svg" height="34px" viewBox="0 -960 960 960" width="34px" fill="#EFEFEF"><path d="M120-120v-560h160v-160h400v320h160v400H520v-160h-80v160H120Zm80-80h80v-80h-80v80Zm0-160h80v-80h-80v80Zm0-160h80v-80h-80v80Zm160 160h80v-80h-80v80Zm0-160h80v-80h-80v80Zm0-160h80v-80h-80v80Zm160 320h80v-80h-80v80Zm0-160h80v-80h-80v80Zm0-160h80v-80h-80v80Zm160 480h80v-80h-80v80Zm0-160h80v-80h-80v80Z"/></svg>,
-      description: "Primary and secondary educational institutions",
-      institutions: [
-        {
-          id: 1,
-          name: "DPS Bhopal",
-          type: "CBSE School",
-          location: "Bhopal, MP",
-          clients: 20,
-          projects: 12,
-          status: "active",
-          departments: [
-            { id: 1, name: "Primary Section", students: 400, faculty: 20, projects: 3 },
-            { id: 2, name: "Middle Section", students: 350, faculty: 18, projects: 3 },
-            { id: 3, name: "Senior Section", students: 300, faculty: 15, projects: 3 },
-            { id: 4, name: "Administration", students: 0, faculty: 10, projects: 3 },
-          ],
-        },
-        {
-          id: 2,
-          name: "Kendriya Vidyalaya No. 1",
-          type: "Central Government School",
-          location: "Bhopal, MP",
-          clients: 18,
-          projects: 10,
-          status: "active",
-          departments: [
-            { id: 1, name: "Primary Wing", students: 300, faculty: 15, projects: 3 },
-            { id: 2, name: "Secondary Wing", students: 250, faculty: 12, projects: 3 },
-            { id: 3, name: "Senior Secondary", students: 200, faculty: 10, projects: 2 },
-            { id: 4, name: "Sports & Activities", students: 0, faculty: 5, projects: 2 },
-          ],
-        },
-      ],
-    },
-  })
+// API base URL - replace with your actual server URL
+const API_URL = "http://localhost:5000/api";
 
-  const [selectedService, setSelectedService] = useState(null)
-  const [selectedInstitution, setSelectedInstitution] = useState(null)
-  const [selectedDepartment, setSelectedDepartment] = useState(null)
-  const [showAddInstitution, setShowAddInstitution] = useState(false)
-  const [showAddDepartment, setShowAddDepartment] = useState(false)
-  const [newInstitution, setNewInstitution] = useState({
-    name: "",
-    type: "",
-    location: "",
-    clients: 0,
-    projects: 0,
-  })
-  const [newDepartment, setNewDepartment] = useState({
-    name: "",
-    students: 0,
-    faculty: 0,
-    projects: 0,
-  })
-  const [showAddSubcategory, setShowAddSubcategory] = useState(false)
-  const [newSubcategory, setNewSubcategory] = useState({
-    name: "",
-    clients: 0,
-    projects: 0,
-  })
+// --- Helper Components ---
 
-  const handleAddSubcategory = (e) => {
-    e.preventDefault()
-    if (!selectedService) return
-
-    const subcategory = {
-      id: Date.now(),
-      ...newSubcategory,
-      status: "active",
-    }
-
-    setServices((prev) => ({
-      ...prev,
-      [selectedService]: {
-        ...prev[selectedService],
-        subcategories: [...prev[selectedService].subcategories, subcategory],
-      },
-    }))
-
-    setNewSubcategory({ name: "", clients: 0, projects: 0 })
-    setShowAddSubcategory(false)
-  }
-
-  const deleteSubcategory = (serviceKey, subcategoryId) => {
-    if (window.confirm("Are you sure you want to delete this subcategory?")) {
-      setServices((prev) => ({
-        ...prev,
-        [serviceKey]: {
-          ...prev[serviceKey],
-          subcategories: prev[serviceKey].subcategories.filter((sub) => sub.id !== subcategoryId),
-        },
-      }))
-    }
-  }
-
-  return (
-    <div className="services-module">
-      <div className="module-header">
-        <h1>Services Management</h1>
-        <p>Manage service categories and client relationships</p>
-      </div>
-
-      <div className="services-grid">
-        {Object.entries(services).map(([key, service]) => (
-          <div key={key} className="service-card">
-            <div className="service-header">
-              <div className="service-icon">{service.icon}</div>
-              <div className="service-info">
-                <h3>{service.name}</h3>
-                <p>{service.description}</p>
-              </div>
-            </div>
-            <div className="service-stats">
-              <div className="stat-item">
-                <span className="stat-value">
-                  {service.institutions?.reduce((sum, inst) => sum + inst.clients, 0) || 0}
-                </span>
-                <span className="stat-label">Clients</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-value">
-                  {service.institutions?.reduce((sum, inst) => sum + inst.projects, 0) || 0}
-                </span>
-                <span className="stat-label">Projects</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-value">{service.institutions?.length || 0}</span>
-                <span className="stat-label">Institutions</span>
-              </div>
-            </div>
-            <button className="manage-btn" onClick={() => setSelectedService(key)}>
-              Manage Institutions
-            </button>
-          </div>
-        ))}
-      </div>
-
-      {selectedService && (
-        <div className="modal-overlay">
-          <div className="modal large">
+const Modal = ({ children, onClose, size = 'medium' }) => (
+    <div className="modal-overlay">
+        <div className={`modal ${size}`}>
             <div className="modal-header">
-              <h2>{services[selectedService].name} - Institutions</h2>
-              <button className="close-btn" onClick={() => setSelectedService(null)}>
-                ×
-              </button>
+                <h2 className="modal-title">{/* Title is now part of children */}</h2>
+                <button className="close-btn" onClick={onClose}>×</button>
             </div>
-            <div className="institutions-content">
-              <div className="institutions-header">
-                <p>{services[selectedService].description}</p>
-                <button className="add-institution-btn" onClick={() => setShowAddInstitution(true)}>
-                  + Add Institution
-                </button>
-              </div>
-              <div className="institutions-grid">
-                {services[selectedService].institutions?.map((institution) => (
-                  <div key={institution.id} className="institution-card">
-                    <div className="institution-header">
-                      <h3>{institution.name}</h3>
-                      <span className={`status-badge ${institution.status}`}>{institution.status}</span>
-                    </div>
-                    <div className="institution-details">
-                      <p>
-                        <strong>Type:</strong> {institution.type}
-                      </p>
-                      <p>
-                        <strong>Location:</strong> {institution.location}
-                      </p>
-                      <div className="institution-stats">
-                        <span>{institution.clients} Clients</span>
-                        <span>{institution.projects} Projects</span>
-                        <span>{institution.departments?.length || 0} Departments</span>
-                      </div>
-                    </div>
-                    <button className="manage-departments-btn" onClick={() => setSelectedInstitution(institution)}>
-                      Manage Departments
-                    </button>
-                  </div>
-                ))}
-              </div>
+            <div className="modal-body">
+                {children}
             </div>
-          </div>
         </div>
-      )}
-
-      {selectedInstitution && (
-        <div className="modal-overlay">
-          <div className="modal large">
-            <div className="modal-header">
-              <h2>{selectedInstitution.name} - Departments</h2>
-              <button className="close-btn" onClick={() => setSelectedInstitution(null)}>
-                ×
-              </button>
-            </div>
-            <div className="departments-content">
-              <div className="departments-header">
-                <div className="institution-info">
-                  <h3>{selectedInstitution.name}</h3>
-                  <p>
-                    {selectedInstitution.type} • {selectedInstitution.location}
-                  </p>
-                </div>
-                <button className="add-department-btn" onClick={() => setShowAddDepartment(true)}>
-                  + Add Department
-                </button>
-              </div>
-              <div className="departments-table-container">
-                <table className="departments-table">
-                  <thead>
-                    <tr>
-                      <th>Department</th>
-                      <th>Students</th>
-                      <th>Faculty</th>
-                      <th>Projects</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {selectedInstitution.departments?.map((department) => (
-                      <tr key={department.id}>
-                        <td>
-                          <div className="department-name">{department.name}</div>
-                        </td>
-                        <td>
-                          <span className="student-count">{department.students}</span>
-                        </td>
-                        <td>
-                          <span className="faculty-count">{department.faculty}</span>
-                        </td>
-                        <td>
-                          <span className="project-count">{department.projects}</span>
-                        </td>
-                        <td>
-                          <div className="department-actions">
-                            <button className="action-btn edit">✏️</button>
-                            <button className="action-btn delete">🗑️</button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showAddSubcategory && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <div className="modal-header">
-              <h2>Add New Subcategory</h2>
-              <button className="close-btn" onClick={() => setShowAddSubcategory(false)}>
-                ×
-              </button>
-            </div>
-            <form onSubmit={handleAddSubcategory} className="subcategory-form">
-              <div className="form-group">
-                <label>Subcategory Name</label>
-                <input
-                  type="text"
-                  value={newSubcategory.name}
-                  onChange={(e) => setNewSubcategory({ ...newSubcategory, name: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Number of Clients</label>
-                  <input
-                    type="number"
-                    value={newSubcategory.clients}
-                    onChange={(e) =>
-                      setNewSubcategory({ ...newSubcategory, clients: Number.parseInt(e.target.value) || 0 })
-                    }
-                    min="0"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Number of Projects</label>
-                  <input
-                    type="number"
-                    value={newSubcategory.projects}
-                    onChange={(e) =>
-                      setNewSubcategory({ ...newSubcategory, projects: Number.parseInt(e.target.value) || 0 })
-                    }
-                    min="0"
-                  />
-                </div>
-              </div>
-
-              <div className="form-actions">
-                <button type="button" onClick={() => setShowAddSubcategory(false)}>
-                  Cancel
-                </button>
-                <button type="submit">Add Subcategory</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
-  )
-}
+);
 
-export default ServicesModule
+const ConfirmationModal = ({ onConfirm, onCancel, message }) => (
+    <Modal onClose={onCancel} size="small">
+        <p>{message}</p>
+        <div className="modal-actions">
+            <button className="btn btn-secondary" onClick={onCancel}>Cancel</button>
+            <button className="btn btn-danger" onClick={onConfirm}>Delete</button>
+        </div>
+    </Modal>
+);
+
+// --- Main Component ---
+
+const ServicesModule = () => {
+    // --- State Declarations ---
+    const [services, setServices] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    // Modal and Form State
+    const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
+    const [editingService, setEditingService] = useState(null);
+    
+    const [isInstitutionModalOpen, setIsInstitutionModalOpen] = useState(false);
+    const [managingService, setManagingService] = useState(null); // The service whose institutions we are managing
+    const [institutions, setInstitutions] = useState([]);
+    const [loadingInstitutions, setLoadingInstitutions] = useState(false);
+    const [editingInstitution, setEditingInstitution] = useState(null);
+
+    const [deleteTarget, setDeleteTarget] = useState(null);
+
+    // --- Data Fetching ---
+
+    const fetchServices = useCallback(async () => {
+        try {
+            setLoading(true);
+            const response = await fetch(`${API_URL}/services`);
+            if (!response.ok) throw new Error('Network response was not ok');
+            const result = await response.json();
+            setServices(result.data || []);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchServices();
+    }, [fetchServices]);
+
+    const fetchInstitutions = useCallback(async (service) => {
+        if (!service || !service.link) return;
+        setLoadingInstitutions(true);
+        try {
+            const response = await fetch(`${API_URL}/${service.link}`);
+            const result = await response.json();
+            setInstitutions(result.data || []);
+        } catch (err) {
+            console.error("Failed to fetch institutions:", err);
+            setInstitutions([]);
+        } finally {
+            setLoadingInstitutions(false);
+        }
+    }, []);
+
+    // --- Event Handlers & CRUD Functions ---
+
+    const handleFileChange = (e, setData) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                // Get base64 string and remove the data URL prefix
+                const base64String = reader.result.replace(/^data:.+;base64,/, '');
+                setData(prev => ({ ...prev, image: base64String }));
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+    
+    // -- Service CRUD --
+    const openServiceModal = (service = null) => {
+        setEditingService(service ? {...service} : { title: '', description: '', alt: '', link: '', image: null });
+        setIsServiceModalOpen(true);
+    };
+
+    const handleSaveService = async (e) => {
+        e.preventDefault();
+        const method = editingService.id ? 'PUT' : 'POST';
+        const url = editingService.id ? `${API_URL}/services/${editingService.id}` : `${API_URL}/services`;
+
+        try {
+            const response = await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(editingService)
+            });
+            if (!response.ok) throw new Error('Failed to save service');
+            
+            setIsServiceModalOpen(false);
+            fetchServices(); // Refetch all services to update the list
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleDelete = async () => {
+        if (!deleteTarget) return;
+        const { type, data } = deleteTarget;
+        
+        const url = type === 'service' 
+            ? `${API_URL}/services/${data.id}` 
+            : `${API_URL}/${managingService.link}/${data.id}`;
+
+        try {
+            const response = await fetch(url, { method: 'DELETE' });
+            if (!response.ok) throw new Error(`Failed to delete ${type}`);
+            
+            if (type === 'service') {
+                fetchServices();
+            } else {
+                fetchInstitutions(managingService);
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setDeleteTarget(null);
+        }
+    };
+
+    // -- Institution CRUD --
+    const openInstitutionManager = (service) => {
+        setManagingService(service);
+        fetchInstitutions(service);
+        setIsInstitutionModalOpen(true);
+    };
+
+    const openInstitutionModal = (institution = null) => {
+        setEditingInstitution(institution ? {...institution} : { name: '', description: '', alt: '', courses: [], established: '', website: '', image: null });
+    };
+    
+    const handleSaveInstitution = async (e) => {
+        e.preventDefault();
+        const method = editingInstitution.id ? 'PUT' : 'POST';
+        const url = editingInstitution.id 
+            ? `${API_URL}/${managingService.link}/${editingInstitution.id}` 
+            : `${API_URL}/${managingService.link}`;
+        
+        try {
+            const response = await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ...editingInstitution,
+                    // Convert comma-separated string back to array for the server
+                    courses: Array.isArray(editingInstitution.courses) ? editingInstitution.courses : editingInstitution.courses.split(',').map(s => s.trim())
+                })
+            });
+            if (!response.ok) throw new Error('Failed to save institution');
+            
+            setEditingInstitution(null); // Close form
+            fetchInstitutions(managingService); // Refetch list
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+
+    // --- Render Logic ---
+    if (loading) return <p>Loading services...</p>;
+    if (error) return <p>Error: {error}</p>;
+
+    return (
+        <div className="services-module-container">
+            <div className="module-header">
+                <h1>Services Dashboard</h1>
+                <button className="btn btn-primary" onClick={() => openServiceModal()}>+ Add New Service</button>
+            </div>
+
+            <div className="services-grid">
+                {services.map(service => (
+                    <div key={service.id} className="service-card">
+                        <img src={`${API_URL}/services/image/${service.id}`} alt={service.alt} className="service-card-image" onError={(e) => e.target.src='https://placehold.co/600x400/EEE/31343C?text=No+Image'} />
+                        <div className="service-card-body">
+                            <h3>{service.title}</h3>
+                            <p>{service.description}</p>
+                            <div className="service-card-actions">
+                                <button className="btn btn-secondary" onClick={() => openInstitutionManager(service)}>Manage</button>
+                                <button className="btn-icon" onClick={() => openServiceModal(service)}>✏️</button>
+                                <button className="btn-icon" onClick={() => setDeleteTarget({ type: 'service', data: service })}>🗑️</button>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* --- Modals --- */}
+
+            {isServiceModalOpen && (
+                <Modal onClose={() => setIsServiceModalOpen(false)} size="medium">
+                    <h2>{editingService.id ? 'Edit' : 'Add'} Service</h2>
+                    <form onSubmit={handleSaveService} className="modal-form">
+                        <input type="text" placeholder="Service Title" value={editingService.title} onChange={e => setEditingService({...editingService, title: e.target.value})} required />
+                        <textarea placeholder="Description" value={editingService.description} onChange={e => setEditingService({...editingService, description: e.target.value})} required />
+                        <input type="text" placeholder="Image Alt Text" value={editingService.alt} onChange={e => setEditingService({...editingService, alt: e.target.value})} />
+                        <input type="text" placeholder="API Link (e.g., colleges)" value={editingService.link} onChange={e => setEditingService({...editingService, link: e.target.value})} required />
+                        <label>Image</label>
+                        <input type="file" accept="image/*" onChange={e => handleFileChange(e, setEditingService)} />
+                        <div className="modal-actions">
+                             <button type="button" className="btn btn-secondary" onClick={() => setIsServiceModalOpen(false)}>Cancel</button>
+                             <button type="submit" className="btn btn-primary">Save Service</button>
+                        </div>
+                    </form>
+                </Modal>
+            )}
+
+            {isInstitutionModalOpen && managingService && (
+                <Modal onClose={() => setIsInstitutionModalOpen(false)} size="large">
+                    <h2>Managing: {managingService.title}</h2>
+                    <button className="btn btn-primary" onClick={() => openInstitutionModal()}>+ Add Institution</button>
+                    <hr/>
+
+                    {editingInstitution && (
+                        <div className="sub-modal-form">
+                            <h3>{editingInstitution.id ? 'Edit' : 'Add'} Institution</h3>
+                             <form onSubmit={handleSaveInstitution}>
+                                <input type="text" placeholder="Institution Name" value={editingInstitution.name} onChange={e => setEditingInstitution({...editingInstitution, name: e.target.value})} required />
+                                <textarea placeholder="Description" value={editingInstitution.description} onChange={e => setEditingInstitution({...editingInstitution, description: e.target.value})} />
+                                <input type="text" placeholder="Website URL" value={editingInstitution.website} onChange={e => setEditingInstitution({...editingInstitution, website: e.target.value})} />
+                                <input type="text" placeholder="Year Established" value={editingInstitution.established} onChange={e => setEditingInstitution({...editingInstitution, established: e.target.value})} />
+                                <input type="text" placeholder="Courses (comma-separated)" value={Array.isArray(editingInstitution.courses) ? editingInstitution.courses.join(', ') : ''} onChange={e => setEditingInstitution({...editingInstitution, courses: e.target.value})} />
+                                <label>Image</label>
+                                <input type="file" accept="image/*" onChange={e => handleFileChange(e, setEditingInstitution)} />
+                                <div className="modal-actions">
+                                    <button type="button" className="btn btn-secondary" onClick={() => setEditingInstitution(null)}>Cancel</button>
+                                    <button type="submit" className="btn btn-primary">Save Institution</button>
+                                </div>
+                            </form>
+                            <hr/>
+                        </div>
+                    )}
+
+                    {loadingInstitutions ? <p>Loading...</p> : (
+                        <div className="institutions-list">
+                            {institutions.map(inst => (
+                                <div key={inst.id} className="institution-item">
+                                    <span>{inst.name} ({inst.established})</span>
+                                    <div className="institution-actions">
+                                        <button className="btn-icon" onClick={() => openInstitutionModal(inst)}>✏️</button>
+                                        <button className="btn-icon" onClick={() => setDeleteTarget({ type: 'institution', data: inst })}>🗑️</button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </Modal>
+            )}
+
+            {deleteTarget && (
+                <ConfirmationModal 
+                    message={`Are you sure you want to delete this ${deleteTarget.type}?`}
+                    onConfirm={handleDelete}
+                    onCancel={() => setDeleteTarget(null)}
+                />
+            )}
+        </div>
+    );
+};
+
+export default ServicesModule;

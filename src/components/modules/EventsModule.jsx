@@ -13,7 +13,7 @@ const EventsModule = () => {
   })
   const [files, setFiles] = useState([])
   useEffect(() => {
-    fetch("http://localhost:5000/api/events")
+    fetch("https://lnctworld.onrender.com/api/events")
       .then((res) => res.json())
       .then((data) => {
         if (data.success) setEvents(data.data)
@@ -33,7 +33,7 @@ const EventsModule = () => {
   
     try {
       const response = await fetch(
-        `http://localhost:5000/api/events${isEdit ? `/${editEventId}` : ""}`,
+        `https://lnctworld.onrender.com/api/events${isEdit ? `/${editEventId}` : ""}`,
         {
           method: isEdit ? "PUT" : "POST",
           body: formData,
@@ -63,7 +63,7 @@ const EventsModule = () => {
     if (!window.confirm("Are you sure you want to delete this event?")) return;
   
     try {
-      const res = await fetch(`http://localhost:5000/api/events/${id}`, {
+      const res = await fetch(`https://lnctworld.onrender.com/api/events/${id}`, {
         method: "DELETE",
       });
       const data = await res.json();
@@ -206,7 +206,7 @@ const EventsModule = () => {
           <h3>{event.title}</h3>
           <p>{event.description}</p>
           <img
-            src={`http://localhost:5000/api/event/image/${event.id}`}
+            src={`/api/event/image/${event.id}`}
             alt={event.title}
             style={{ maxWidth: "100%", maxHeight: "200px", objectFit: "cover" }}
           />
