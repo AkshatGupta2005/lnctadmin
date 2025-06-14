@@ -1,25 +1,18 @@
 "use client"
 
 import React, { useState, useEffect, useCallback } from 'react';
-// Create and import a corresponding CSS file for this component
-// For example: import "./ServicesModule.css"; 
-// Make sure to create this file in the same directory.
-import "../../styles/modules/services.css"
-// API base URL - replace with your actual server URL
-const API_URL = "https://lnctworld.onrender.com/api";
+import "../../styles/modules/services.css";
 
-// --- Helper Components ---
+const API_URL = "https://lnctworld.onrender.com/api";
 
 const Modal = ({ children, onClose, size = 'medium' }) => (
     <div className="modal-overlay">
         <div className={`modal ${size}`}>
             <div className="modal-header">
-                <h2 className="modal-title">{/* Title is now part of children */}</h2>
+                <h2 className="modal-title"></h2>
                 <button className="close-btn" onClick={onClose}>×</button>
             </div>
-            <div className="modal-body">
-                {children}
-            </div>
+            <div className="modal-body">{children}</div>
         </div>
     </div>
 );
@@ -34,27 +27,21 @@ const ConfirmationModal = ({ onConfirm, onCancel, message }) => (
     </Modal>
 );
 
-// --- Main Component ---
-
 const ServicesModule = () => {
-    // --- State Declarations ---
     const [services, setServices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Modal and Form State
     const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
     const [editingService, setEditingService] = useState(null);
-    
+
     const [isInstitutionModalOpen, setIsInstitutionModalOpen] = useState(false);
-    const [managingService, setManagingService] = useState(null); // The service whose institutions we are managing
+    const [managingService, setManagingService] = useState(null);
     const [institutions, setInstitutions] = useState([]);
     const [loadingInstitutions, setLoadingInstitutions] = useState(false);
     const [editingInstitution, setEditingInstitution] = useState(null);
 
     const [deleteTarget, setDeleteTarget] = useState(null);
-
-    // --- Data Fetching ---
 
     const fetchServices = useCallback(async () => {
         try {
@@ -75,7 +62,7 @@ const ServicesModule = () => {
     }, [fetchServices]);
 
     const fetchInstitutions = useCallback(async (service) => {
-        if (!service || !service.link) return;
+        if (!service?.link) return;
         setLoadingInstitutions(true);
         try {
             const response = await fetch(`${API_URL}/${service.link}`);
@@ -89,24 +76,20 @@ const ServicesModule = () => {
         }
     }, []);
 
-    // --- Event Handlers & CRUD Functions ---
-
     const handleFileChange = (e, setData) => {
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
             reader.onloadend = () => {
-                // Get base64 string and remove the data URL prefix
                 const base64String = reader.result.replace(/^data:.+;base64,/, '');
                 setData(prev => ({ ...prev, image: base64String }));
             };
             reader.readAsDataURL(file);
         }
     };
-    
-    // -- Service CRUD --
+
     const openServiceModal = (service = null) => {
-        setEditingService(service ? {...service} : { title: '', description: '', alt: '', link: '', image: null });
+        setEditingService(service ? { ...service } : { title: '', description: '', alt: '', link: '', image: null });
         setIsServiceModalOpen(true);
     };
 
@@ -122,9 +105,9 @@ const ServicesModule = () => {
                 body: JSON.stringify(editingService)
             });
             if (!response.ok) throw new Error('Failed to save service');
-            
+
             setIsServiceModalOpen(false);
-            fetchServices(); // Refetch all services to update the list
+            fetchServices();
         } catch (err) {
             console.error(err);
         }
@@ -133,20 +116,16 @@ const ServicesModule = () => {
     const handleDelete = async () => {
         if (!deleteTarget) return;
         const { type, data } = deleteTarget;
-        
-        const url = type === 'service' 
-            ? `${API_URL}/services/${data.id}` 
+
+        const url = type === 'service'
+            ? `${API_URL}/services/${data.id}`
             : `${API_URL}/${managingService.link}/${data.id}`;
 
         try {
             const response = await fetch(url, { method: 'DELETE' });
             if (!response.ok) throw new Error(`Failed to delete ${type}`);
-            
-            if (type === 'service') {
-                fetchServices();
-            } else {
-                fetchInstitutions(managingService);
-            }
+
+            type === 'service' ? fetchServices() : fetchInstitutions(managingService);
         } catch (err) {
             console.error(err);
         } finally {
@@ -154,45 +133,59 @@ const ServicesModule = () => {
         }
     };
 
-    // -- Institution CRUD --
     const openInstitutionManager = (service) => {
         setManagingService(service);
         fetchInstitutions(service);
         setIsInstitutionModalOpen(true);
     };
 
-    const openInstitutionModal = (institution = null) => {
-        setEditingInstitution(institution ? {...institution} : { name: '', description: '', alt: '', courses: [], established: '', website: '', image: null });
+    const openInstitutionModal = (inst = null) => {
+        if (inst) {
+            setEditingInstitution({
+                ...inst,
+                courses: Array.isArray(inst.courses)
+                    ? inst.courses.join(', ')
+                    : inst.courses || ''
+            });
+        } else {
+            setEditingInstitution({
+                name: '',
+                description: '',
+                website: '',
+                established: '',
+                courses: '',
+                image: null
+            });
+        }
     };
-    
+
     const handleSaveInstitution = async (e) => {
         e.preventDefault();
         const method = editingInstitution.id ? 'PUT' : 'POST';
-        const url = editingInstitution.id 
-            ? `${API_URL}/${managingService.link}/${editingInstitution.id}` 
+        const url = editingInstitution.id
+            ? `${API_URL}/${managingService.link}/${editingInstitution.id}`
             : `${API_URL}/${managingService.link}`;
-        
+
         try {
             const response = await fetch(url, {
                 method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     ...editingInstitution,
-                    // Convert comma-separated string back to array for the server
-                    courses: Array.isArray(editingInstitution.courses) ? editingInstitution.courses : editingInstitution.courses.split(',').map(s => s.trim())
+                    courses: Array.isArray(editingInstitution.courses)
+                        ? editingInstitution.courses
+                        : editingInstitution.courses.split(',').map(s => s.trim()).filter(Boolean)
                 })
             });
             if (!response.ok) throw new Error('Failed to save institution');
-            
-            setEditingInstitution(null); // Close form
-            fetchInstitutions(managingService); // Refetch list
+
+            setEditingInstitution(null);
+            fetchInstitutions(managingService);
         } catch (err) {
             console.error(err);
         }
     };
 
-
-    // --- Render Logic ---
     if (loading) return <p>Loading services...</p>;
     if (error) return <p>Error: {error}</p>;
 
@@ -206,7 +199,7 @@ const ServicesModule = () => {
             <div className="services-grid">
                 {services.map(service => (
                     <div key={service.id} className="service-card">
-                        <img src={`${API_URL}/services/image/${service.id}`} alt={service.alt} className="service-card-image" onError={(e) => e.target.src='https://placehold.co/600x400/EEE/31343C?text=No+Image'} />
+                        <img src={`${API_URL}/services/image/${service.id}`} alt={service.alt} className="service-card-image" onError={e => e.target.src = 'https://placehold.co/600x400/EEE/31343C?text=No+Image'} />
                         <div className="service-card-body">
                             <h3>{service.title}</h3>
                             <p>{service.description}</p>
@@ -220,21 +213,19 @@ const ServicesModule = () => {
                 ))}
             </div>
 
-            {/* --- Modals --- */}
-
             {isServiceModalOpen && (
                 <Modal onClose={() => setIsServiceModalOpen(false)} size="medium">
                     <h2>{editingService.id ? 'Edit' : 'Add'} Service</h2>
                     <form onSubmit={handleSaveService} className="modal-form">
-                        <input type="text" placeholder="Service Title" value={editingService.title} onChange={e => setEditingService({...editingService, title: e.target.value})} required />
-                        <textarea placeholder="Description" value={editingService.description} onChange={e => setEditingService({...editingService, description: e.target.value})} required />
-                        <input type="text" placeholder="Image Alt Text" value={editingService.alt} onChange={e => setEditingService({...editingService, alt: e.target.value})} />
-                        <input type="text" placeholder="API Link (e.g., colleges)" value={editingService.link} onChange={e => setEditingService({...editingService, link: e.target.value})} required />
+                        <input type="text" placeholder="Service Title" value={editingService.title} onChange={e => setEditingService({ ...editingService, title: e.target.value })} required />
+                        <textarea placeholder="Description" value={editingService.description} onChange={e => setEditingService({ ...editingService, description: e.target.value })} required />
+                        <input type="text" placeholder="Image Alt Text" value={editingService.alt} onChange={e => setEditingService({ ...editingService, alt: e.target.value })} />
+                        <input type="text" placeholder="API Link (e.g., colleges)" value={editingService.link} onChange={e => setEditingService({ ...editingService, link: e.target.value })} required />
                         <label>Image</label>
                         <input type="file" accept="image/*" onChange={e => handleFileChange(e, setEditingService)} />
                         <div className="modal-actions">
-                             <button type="button" className="btn btn-secondary" onClick={() => setIsServiceModalOpen(false)}>Cancel</button>
-                             <button type="submit" className="btn btn-primary">Save Service</button>
+                            <button type="button" className="btn btn-secondary" onClick={() => setIsServiceModalOpen(false)}>Cancel</button>
+                            <button type="submit" className="btn btn-primary">Save Service</button>
                         </div>
                     </form>
                 </Modal>
@@ -244,17 +235,17 @@ const ServicesModule = () => {
                 <Modal onClose={() => setIsInstitutionModalOpen(false)} size="large">
                     <h2>Managing: {managingService.title}</h2>
                     <button className="btn btn-primary" onClick={() => openInstitutionModal()}>+ Add Institution</button>
-                    <hr/>
+                    <hr />
 
                     {editingInstitution && (
                         <div className="sub-modal-form">
                             <h3>{editingInstitution.id ? 'Edit' : 'Add'} Institution</h3>
-                             <form onSubmit={handleSaveInstitution}>
-                                <input type="text" placeholder="Institution Name" value={editingInstitution.name} onChange={e => setEditingInstitution({...editingInstitution, name: e.target.value})} required />
-                                <textarea placeholder="Description" value={editingInstitution.description} onChange={e => setEditingInstitution({...editingInstitution, description: e.target.value})} />
-                                <input type="text" placeholder="Website URL" value={editingInstitution.website} onChange={e => setEditingInstitution({...editingInstitution, website: e.target.value})} />
-                                <input type="text" placeholder="Year Established" value={editingInstitution.established} onChange={e => setEditingInstitution({...editingInstitution, established: e.target.value})} />
-                                <input type="text" placeholder="Courses (comma-separated)" value={Array.isArray(editingInstitution.courses) ? editingInstitution.courses.join(', ') : ''} onChange={e => setEditingInstitution({...editingInstitution, courses: e.target.value})} />
+                            <form onSubmit={handleSaveInstitution}>
+                                <input type="text" placeholder="Institution Name" value={editingInstitution.name} onChange={e => setEditingInstitution({ ...editingInstitution, name: e.target.value })} required />
+                                <textarea placeholder="Description" value={editingInstitution.description} onChange={e => setEditingInstitution({ ...editingInstitution, description: e.target.value })} />
+                                <input type="text" placeholder="Website URL" value={editingInstitution.website} onChange={e => setEditingInstitution({ ...editingInstitution, website: e.target.value })} />
+                                <input type="text" placeholder="Year Established" value={editingInstitution.established} onChange={e => setEditingInstitution({ ...editingInstitution, established: e.target.value })} />
+                                <input type="text" placeholder="Courses (comma-separated)" value={editingInstitution.courses} onChange={e => setEditingInstitution({ ...editingInstitution, courses: e.target.value })} />
                                 <label>Image</label>
                                 <input type="file" accept="image/*" onChange={e => handleFileChange(e, setEditingInstitution)} />
                                 <div className="modal-actions">
@@ -262,7 +253,7 @@ const ServicesModule = () => {
                                     <button type="submit" className="btn btn-primary">Save Institution</button>
                                 </div>
                             </form>
-                            <hr/>
+                            <hr />
                         </div>
                     )}
 
@@ -283,7 +274,7 @@ const ServicesModule = () => {
             )}
 
             {deleteTarget && (
-                <ConfirmationModal 
+                <ConfirmationModal
                     message={`Are you sure you want to delete this ${deleteTarget.type}?`}
                     onConfirm={handleDelete}
                     onCancel={() => setDeleteTarget(null)}
