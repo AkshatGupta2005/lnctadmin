@@ -6,13 +6,12 @@ import "../../styles/modules/events.css"
 const EventsModule = () => {
   const [events, setEvents] = useState([])
   const [showAddForm, setShowAddForm] = useState(false)
+  const [editEventId, setEditEventId] = useState(null)
   const [newEvent, setNewEvent] = useState({
     title: "",
     description: "",
   })
   const [files, setFiles] = useState([])
-
-  // Load events from backend
   useEffect(() => {
     fetch("http://localhost:5000/api/events")
       .then((res) => res.json())
@@ -24,32 +23,58 @@ const EventsModule = () => {
 
   // Submit event to backend
   const handleAddEvent = async (e) => {
-    e.preventDefault()
-    const formData = new FormData()
-    formData.append("title", newEvent.title)
-    formData.append("description", newEvent.description)
-    if (files.length > 0) formData.append("image", files[0]) // single image
-
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("title", newEvent.title);
+    formData.append("description", newEvent.description);
+    if (files.length > 0) formData.append("image", files[0]);
+  
+    const isEdit = editEventId !== null;
+  
     try {
-      const response = await fetch("http://localhost:5000/api/events", {
-        method: "POST",
-        body: formData,
-      })
-      const data = await response.json()
+      const response = await fetch(
+        `http://localhost:5000/api/events${isEdit ? `/${editEventId}` : ""}`,
+        {
+          method: isEdit ? "PUT" : "POST",
+          body: formData,
+        }
+      );
+  
+      const data = await response.json();
       if (data.success) {
-        setEvents([...events, data.data])
-        setShowAddForm(false)
-        setNewEvent({ title: "", description: "" })
-        setFiles([])
+        if (isEdit) {
+          setEvents(events.map(ev => ev.id === editEventId ? { ...ev, ...newEvent } : ev));
+        } else {
+          setEvents([...events, data.data]);
+        }
+        setShowAddForm(false);
+        setNewEvent({ title: "", description: "" });
+        setFiles([]);
+        setEditEventId(null);
       } else {
-        alert("Upload failed")
+        alert("Upload failed");
       }
     } catch (error) {
-      console.error("Error submitting event:", error)
-      alert("Error submitting event")
+      console.error("Error submitting event:", error);
+      alert("Error submitting event");
     }
-  }
-
+  };  
+  const handleDeleteEvent = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this event?")) return;
+  
+    try {
+      const res = await fetch(`http://localhost:5000/api/events/${id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (data.success) {
+        setEvents(events.filter((e) => e.id !== id));
+      }
+    } catch (err) {
+      console.error("Delete failed:", err);
+      alert("Failed to delete event");
+    }
+  };  
   const handleImageUpload = (e) => {
     const selectedFiles = Array.from(e.target.files)
     const imageUrls = selectedFiles.map((file) => URL.createObjectURL(file))
@@ -77,11 +102,17 @@ const EventsModule = () => {
         <div className="modal-overlay">
           <div className="modal">
             <div className="modal-header">
-              <h2>Add Event Report</h2>
-              <button className="close-btn" onClick={() => setShowAddForm(false)}>
+              <h2>{editEventId ? "Edit Event Report" : "Add Event Report"}</h2>
+              <button className="close-btn" onClick={() => {
+                setShowAddForm(false);
+                setEditEventId(null);
+                setNewEvent({ title: "", description: "" });
+                setFiles([]);
+              }}>
                 ×
               </button>
             </div>
+            
             <form
               onSubmit={handleAddEvent}
               className="event-form"
@@ -96,6 +127,7 @@ const EventsModule = () => {
                   required
                 />
               </div>
+            
               <div className="form-group">
                 <label>Description</label>
                 <textarea
@@ -105,9 +137,34 @@ const EventsModule = () => {
                   required
                 ></textarea>
               </div>
+            
               <div className="form-group">
                 <label>Event Image</label>
-                <input type="file" accept="image/*" onChange={handleImageUpload} />
+            
+                <div
+                  className="drag-drop-area"
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    const droppedFiles = Array.from(e.dataTransfer.files);
+                    const imageUrls = droppedFiles.map((file) =>
+                      URL.createObjectURL(file)
+                    );
+                    setFiles(droppedFiles);
+                    setNewEvent({ ...newEvent, images: imageUrls });
+                  }}
+                  onClick={() => document.getElementById("image-upload").click()}
+                >
+                  <p>📂 Drag & drop or click to select an image</p>
+                  <input
+                    id="image-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    style={{ display: "none" }}
+                  />
+                </div>
+                
                 {newEvent.images && newEvent.images.length > 0 && (
                   <div className="image-preview-grid">
                     {newEvent.images.map((img, index) => (
@@ -121,29 +178,49 @@ const EventsModule = () => {
                   </div>
                 )}
               </div>
+                    
               <div className="form-actions">
-                <button type="button" onClick={() => setShowAddForm(false)}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAddForm(false);
+                    setEditEventId(null);
+                    setNewEvent({ title: "", description: "" });
+                    setFiles([]);
+                  }}
+                >
                   Cancel
                 </button>
-                <button type="submit">Submit</button>
+                <button type="submit">{editEventId ? "Update" : "Submit"}</button>
               </div>
             </form>
           </div>
         </div>
-      )}
+      )}      
+
 
       {/* Event Cards */}
       <div className="events-grid">
         {events.map((event) => (
           <div key={event.id} className="event-card">
-            <h3>{event.title}</h3>
-            <p>{event.description}</p>
-            <img
-              src={`http://localhost:5000/api/event/image/${event.id}`}
-              alt={event.title}
-              style={{ maxWidth: "100%", maxHeight: "200px", objectFit: "cover" }}
-            />
+          <h3>{event.title}</h3>
+          <p>{event.description}</p>
+          <img
+            src={`http://localhost:5000/api/event/image/${event.id}`}
+            alt={event.title}
+            style={{ maxWidth: "100%", maxHeight: "200px", objectFit: "cover" }}
+          />
+          <div className="card-actions">
+            <button  className="edit-btn" onClick={() => {
+              setEditEventId(event.id)
+              setNewEvent({ title: event.title, description: event.description })
+              setShowAddForm(true)
+            }}>
+              Edit
+            </button>
+            <button className="delete-btn" onClick={() => handleDeleteEvent(event.id)}>Delete</button>
           </div>
+        </div>        
         ))}
       </div>
     </div>

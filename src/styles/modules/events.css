@@ -254,6 +254,69 @@
 .image-gallery img:hover {
   transform: scale(1.05);
 }
+.drag-drop-area {
+  border: 2px dashed #aaa;
+  padding: 1rem;
+  text-align: center;
+  border-radius: 10px;
+  margin-top: 10px;
+  cursor: pointer;
+  background-color: #fafafa;
+  transition: background 0.2s ease;
+}
+
+.drag-drop-area:hover {
+  background-color: #f0f0f0;
+}
+
+.image-preview-grid {
+  display: flex;
+  gap: 1rem;
+  margin-top: 10px;
+}
+
+.image-preview {
+  position: relative;
+}
+
+.image-preview img {
+  max-width: 120px;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.image-preview button {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: red;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+}
+.edit-btn {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 3px 6px;
+  border-radius: 5px;
+}
+
+.delete-btn {
+  background: red;
+  color: white;
+  border: 1px solid #d1d5db;
+  padding: 3px;
+  border-radius: 5px;
+}
+
+.event-actions button:hover {
+  transform: translateY(-1px);
+}
 
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
