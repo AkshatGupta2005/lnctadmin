@@ -4,9 +4,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 // Create and import a corresponding CSS file for this component
 // For example: import "./ServicesModule.css"; 
 // Make sure to create this file in the same directory.
-
+import "../../styles/modules/services.css"
 // API base URL - replace with your actual server URL
-const API_URL = "http://localhost:5000/api";
+const API_URL = "https://lnctworld.onrender.com/api";
 
 // --- Helper Components ---
 
