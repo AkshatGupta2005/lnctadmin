@@ -206,7 +206,7 @@ const EventsModule = () => {
           <h3>{event.title}</h3>
           <p>{event.description}</p>
           <img
-            src={`/api/event/image/${event.id}`}
+            src={`https://lnctworld.onrender.com/api/event/image/${event.id}`}
             alt={event.title}
             style={{ maxWidth: "100%", maxHeight: "200px", objectFit: "cover" }}
           />
