@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import "../../styles/modules/services.css";
 
-const API_URL = "https://lnctworld.onrender.com/api";
+const API_URL = "http://localhost:5000/api";
 
 const Modal = ({ children, onClose, size = 'medium' }) => (
     <div className="modal-overlay">
